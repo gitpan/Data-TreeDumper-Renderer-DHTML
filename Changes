@@ -1,5 +1,8 @@
 Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
 
+0.03  Mon July 1 21:30:00 2004
+	FIXED: replaced <pre> with <span>
+	
 0.02  Mon Jun 28 22:30:00 2004
 	FIXED: unique IDs
 	FIXED: separate dump from style

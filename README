@@ -1,11 +1,13 @@
 Data/TreeDumper/Renderer/DHTML
 ==============================
 
-Version 0.01
+Version 0.03
 
 Data::TreeDumper::Renderer::DHTML Rendering plug-in for Data::TreeDumper
 
 In this release:
+
+	FIXED: replaced <pre> with <span>
 
 Ex:
 

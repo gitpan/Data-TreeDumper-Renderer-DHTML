@@ -15,7 +15,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
@@ -108,20 +108,21 @@ else if (document.layers)
 		}
 	}
 } 
+
 </script>
 
 EOR
 
 my $style = <<EOS;
 <style>
-li.$class {list-style-type:none ; line-height: 1em}
+span.$class {font-family:monospace ; white-space:pre}
+li.$class {list-style-type:none ; margin:0 ; padding:0 ; line-height: 1em}
 ul.$class, li.$class {margin:0 ; padding:0 ;}
 </style>
-
 EOS
 
 my $header = <<EOH ;
-<li class='$class'><pre><a href='javascript:void(0);' onClick='toggleList(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title </a></pre></li>
+<li class='$class'><span class='$class'><a href='javascript:void(0);' onClick='toggleList(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title </a></span></li>
 EOH
 
 $style = '' if(exists $setup->{RENDERER}{NO_STYLE}) ;
@@ -170,13 +171,13 @@ $node .= "</ul>" x ($setup->{RENDERER}{PREVIOUS_LEVEL} - $level)  ;
 
 if($is_terminal)
 	{
-	$node .= "<pre><li class='$class'>$glyph$element_name $element_value$address_field$perl_data</li></pre>\n\n" ;
+	$node .= "<li class='$class'><span class='$class'>$glyph$element_name $element_value$address_field$perl_data</span></li>\n\n" ;
 	}
 else
 	{
 	$node .= "<li class='$class'>"
-		 . "<pre><a href='javascript:void(0);' onClick='toggleList(\"${uuuid}_$dtd_address\")'>"
-		 . "$glyph$element_name $element_value$address_field$perl_data</a></pre></li>\n\n" ;
+		 . "<span class='$class'><a href='javascript:void(0);' onClick='toggleList(\"${uuuid}_$dtd_address\")'>"
+		 . "$glyph$element_name $element_value$address_field$perl_data</a></span></li>\n\n" ;
 	}
 
 $setup->{RENDERER}{PREVIOUS_LEVEL}   = $level ;
@@ -236,7 +237,12 @@ specific style for your tree dump, defined you own CSS and set the appropriate c
 
 =head1 Bugs
 
-None I know of in this release but plenty, lurking in the dark corners, waiting to be found.
+The previous version displayed wrong in IE and Mozilla but right in Konqueror. It now works rather fine in IE and 
+Mozilla but wraps in Konqueror when it doens't in Mozilla!
+
+I'm no web guy so if you want to make this module work in your favorit browser, contribute some code.
+
+I'll hapilly hand this module over to someone who knows what he does :-)
 
 =head1 EXPORT
 
