@@ -1,0 +1,6 @@
+Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
+
+0.01  Sat Jun 26 23:29:05 2004
+	- original version; created by h2xs 1.21 with options
+		-X -n Data::TreeDumper::Renderer::DHTML
+
