@@ -47,7 +47,7 @@ $style
 
 $body
 <p>
-   <img src='http://www.w3.org/Icons/valid-xhtml10' alt='Valid HTML 4.01!' height="15" width='44' />
+   <img src='http://www.w3.org/Icons/valid-xhtml10' alt='Valid XTML 1.0!' height="15" width='44' />
 </p>
 
 </body>

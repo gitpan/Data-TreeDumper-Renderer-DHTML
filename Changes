@@ -1,5 +1,10 @@
 Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
 
+0.05  Mon Oct 11 20:00:00 2004
+	FIXED: Javascript element was not taken into acount (I have to learn to test better!)
+	ADDED: output example (dhtml_test.html)
+	FIXED: Error in validaty text
+
 0.04  Thu Sep 30 20:00:00 2004
 	ADDED: Expand and collapse buttons
 	ADDED: TD link is now a real html link
