@@ -1,5 +1,18 @@
 Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
 
+0.02  Mon Jun 28 22:30:00 2004
+	FIXED: unique IDs
+	FIXED: separate dump from style
+	FIXED: tag to lower case
+	FIXED: use of unique class
+	CHANGED: glyphs are output byt the renderer instead for relying on browser
+	ADDED: {RENDERER}{NO_GLYPHS}
+	ADDED: {RENDERER}{STYLE}
+	ADDED: {RENDERER}{NO_STYLE}
+	ADDED: {RENDERER}{CLASS}
+	CHANGED: use <pre> instead for &nbsp;
+	ADDED: Attempt to support older browsers
+	
 0.01  Sat Jun 26 23:29:05 2004
 	- original version; created by h2xs 1.21 with options
 		-X -n Data::TreeDumper::Renderer::DHTML

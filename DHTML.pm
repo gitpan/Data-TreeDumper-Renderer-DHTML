@@ -15,12 +15,18 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
+
+
+use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
+
+my $uuuid = int(rand(100_000)) ;
 
 #-------------------------------------------------------------------------------------------
 sub GetRenderer
 {
-# setup arguments can be passed to the renderer
+my $id = "${uuuid}_ROOT" ;
+$uuuid++ ;
 
 return
 	(
@@ -31,7 +37,9 @@ return
 		
 		# data needed by the renderer
 		, PREVIOUS_LEVEL => -1
-		, PREVIOUS_ADDRESS => 'ROOT'
+		, PREVIOUS_ADDRESS => $id
+		
+		, @_
 		}
 	) ;
 }
@@ -42,27 +50,91 @@ return
 sub RenderDhtmlBegin
 {
 # render the root by using the name passed as title ($_[0])
-# this needs some work be a valid HTML!
 
-<<EOR
-<SCRIPT LANGAUGE="javascript">
-function toggleList(tree_id) {
-    var element = document.getElementById(tree_id);
-    if (element) {
-        if (element.style.display == 'none') {
-            element.style.display = 'block';
-        }
-        else {
-            element.style.display = 'none';
-        }
-    }
-}
-</SCRIPT>
+my ($title, undef, undef, $setup) = @_ ;
 
-<LI><A HREF='javascript:void(0);' onClick='toggleList(\"ROOT\")'>
-$_[0] </A></LI>
+my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
+
+my $javascript = <<EOR ;
+<script LANGUAGE="javascript">
+function toggleList(tree_id) 
+{
+if (document.getElementById) 
+	{
+	var element = document.getElementById(tree_id);
+	
+	if (element) 
+		{
+		if (element.style.display == 'none') 
+			{
+			element.style.display = 'block';
+			}
+		else
+			{
+			element.style.display = 'none';
+			}
+		}
+	}
+else if (document.all) 
+	{
+	var element = document.all[tree_id];
+	
+	if (element) 
+		{
+		if (element.style.display == 'none') 
+			{
+			element.style.display = 'block';
+			}
+		else
+			{
+			element.style.display = 'none';
+			}
+		}
+	}
+else if (document.layers) 
+	{
+	var element = document.layers[tree_id];
+	
+	if (element) 
+		{
+		if (element.display == 'none') 
+			{
+			element.display = 'block';
+			}
+		else
+			{
+			element.display = 'none';
+			}
+		}
+	}
+} 
+</script>
 
 EOR
+
+my $style = <<EOS;
+<style>
+li.$class {list-style-type:none ; line-height: 1em}
+ul.$class, li.$class {margin:0 ; padding:0 ;}
+</style>
+
+EOS
+
+my $header = <<EOH ;
+<li class='$class'><pre><a href='javascript:void(0);' onClick='toggleList(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title </a></pre></li>
+EOH
+
+$style = '' if(exists $setup->{RENDERER}{NO_STYLE}) ;
+
+if(exists $setup->{RENDERER}{STYLE})
+	{
+	$setup->{RENDERER}{STYLE} .= $style ;
+	return($javascript . $header) ;
+	}
+else
+	{
+	return($style . $javascript . $header) ;
+	}
 }
 
 #-------------------------------------------------------------------------------------------
@@ -83,35 +155,44 @@ my
 	, $setup
 	) = @_ ;
 	
+my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
+
+my $glyph = '' ;
+$glyph = $previous_level_separator. $separator unless ($setup->{RENDERER}{NO_GLYPH}) ;
+	
+$element_value = " = $element_value"    if($element_value ne '') ;
+$address_field = " $address_field" if $address_field ne '' ;
+$perl_data     = " $perl_data"     if $perl_data ne '' ;
+
 my $node = '' ;
-
-my $previous_level = $setup->{RENDERER}{PREVIOUS_LEVEL} ;
-
-$node .= "<UL ID='$setup->{RENDERER}{PREVIOUS_ADDRESS}'>\n\n" if($level > $previous_level) ;
-$node .= "</UL>" x ($previous_level - $level)  ;
-
-$setup->{RENDERER}{PREVIOUS_LEVEL}   = $level ;
-$setup->{RENDERER}{PREVIOUS_ADDRESS} = $dtd_address ;
-
-$element_value = " = $element_value" if($element_value ne '') ;
+$node = "<ul class='$class' ID='$setup->{RENDERER}{PREVIOUS_ADDRESS}'>\n\n" if($level > $setup->{RENDERER}{PREVIOUS_LEVEL}) ;
+$node .= "</ul>" x ($setup->{RENDERER}{PREVIOUS_LEVEL} - $level)  ;
 
 if($is_terminal)
 	{
-	$node .= "<LI>$element_name $element_value $address_field $perl_data</LI>\n\n" ;
+	$node .= "<pre><li class='$class'>$glyph$element_name $element_value$address_field$perl_data</li></pre>\n\n" ;
 	}
 else
 	{
-	$node .= "<LI><A HREF='javascript:void(0);' onClick='toggleList(\"$dtd_address\")'>\n"
-		 . "$element_name $element_value $address_field $perl_data</A></LI>\n\n" ;
+	$node .= "<li class='$class'>"
+		 . "<pre><a href='javascript:void(0);' onClick='toggleList(\"${uuuid}_$dtd_address\")'>"
+		 . "$glyph$element_name $element_value$address_field$perl_data</a></pre></li>\n\n" ;
 	}
+
+$setup->{RENDERER}{PREVIOUS_LEVEL}   = $level ;
+$setup->{RENDERER}{PREVIOUS_ADDRESS} = $uuuid . '_' .  $dtd_address ;
+$uuuid++ ;
+
+return($node) ;
 }
 	
 #-------------------------------------------------------------------------------------------
 sub RenderDhtmlEnd
 {
-"</UL>\n"
+"</ul>\n"
 } 
 
+#-------------------------------------------------------------------------------------------
 1 ;
 
 __END__
@@ -138,6 +219,21 @@ Data::TreeDumper::Renderer::DHTML - Simple DHTML renderer for B<Data::TreeDumper
 Simple DHTML renderer for B<Data::TreeDumper>. Thanks to Stevan Little author of Tree::Simple::View
 for giving me the idea and providing some code I could snatch.
 
+Thanks to my colleague Staffan Maahlén for being a HTML/CSS freak and pointing a zillion little mistakes in
+the generated HTML.
+
+CSS style is dumped to $setup->{RENDERER}{STYLE} (a ref to a scalar) if it exists. This allows you to collect
+all the CSS then output it at the top of the HTML code.
+
+{RENDERER}{NO_STYLE} removes style section generation. This is usefull when you defined you styles by hand.
+
+The output will use class 'data_tree_dumper_dhtml' for <li> and <ul>. The class can be renamed with the help of 
+{RENDERER}{CLASS}. This allows you to dump multiple data structures and display them with a diffrent styles.
+
+B<Data::TreeDumper> outputs the tree lines as ASCII text by default. If {RENDERER}{NO_GLYPH} and RENDERER}{NO_STYLE}
+are defined, no lines are output and the indentation will be the default <li> style. If you would like to specify a 
+specific style for your tree dump, defined you own CSS and set the appropriate class through {RENDERER}{CLASS.
+
 =head1 Bugs
 
 None I know of in this release but plenty, lurking in the dark corners, waiting to be found.
@@ -149,8 +245,6 @@ None
 =head1 AUTHOR
 
 Khemir Nadim ibn Hamouda. <nadim@khemir.net>
-
-Thanks to Ed Avis for showing interest and pushing me to re-write the documentation.
 
   Copyright (c) 2003 Nadim Ibn Hamouda el Khemir. All rights
   reserved.  This program is free software; you can redis-
