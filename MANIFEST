@@ -3,6 +3,7 @@ DHTML.pm
 Makefile.PL
 MANIFEST
 README
+dhtml_test.pl
 test.pl
 Todo
 META.yml                                 Module meta-data (added by MakeMaker)

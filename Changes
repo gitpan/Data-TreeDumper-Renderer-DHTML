@@ -1,5 +1,13 @@
 Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
 
+0.04  Thu Sep 30 20:00:00 2004
+	ADDED: Expand and collapse buttons
+	ADDED: TD link is now a real html link
+	FIXED: HTML source indentation
+	FIXED: W3C validation
+	PROTOTYPE: very simple search
+	ADDED: example
+
 0.03  Mon July 1 21:30:00 2004
 	FIXED: replaced <pre> with <span>
 	
