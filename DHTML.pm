@@ -12,7 +12,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
 
@@ -73,15 +73,28 @@ if(exists $setup->{RENDERER}{BUTTON})
 	
 	if($setup->{RENDERER}{BUTTON}{COLLAPSE_EXPAND})
 		{
-		$button_container .= "   <input type='button' id='$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}' onclick='expand_collapse(true)' value='Collapse'/>\n" ;
+		if($setup->{RENDERER}{COLLAPSED})
+			{
+			$button_container .= "   <input type='button' id='$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}' onclick='expand_collapse_${class}(true)' value='Expand'/>\n" ;
+			}
+		else
+			{
+			$button_container .= "   <input type='button' id='$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}' onclick='expand_collapse_${class}(true)' value='Collapse'/>\n" ;
+			}
 		}
 		
 	if($setup->{RENDERER}{BUTTON}{SEARCH})
 		{
-		$button_container .= "   <input type='button' id='$setup->{RENDERER}{SEARCH_BUTTON_ID}' onclick='search()' value='Search'/>\n" ;
+		$button_container .= "   <input type='button' id='$setup->{RENDERER}{SEARCH_BUTTON_ID}' onclick='search_${class}()' value='Search'/>\n" ;
 		}
 		
 	$button_container .= "</div>\n\n" ;
+	}
+
+my $collapsed = '' ;
+if($setup->{RENDERER}{COLLAPSED})
+	{
+	$collapsed = "ul.$class > li > ul {display: none}" ;
 	}
 
 my $style = <<EOS;
@@ -90,6 +103,9 @@ my $style = <<EOS;
 
 .$class ul {margin:0 ; padding:0 ;}
 ul.$class {font-family:monospace ; white-space: nowrap ;}
+
+$collapsed
+
 </style>
 EOS
 
@@ -113,7 +129,7 @@ $perl_size = "&lt;$perl_size&gt;" if $perl_size ne '' ;
 my $header = <<EOH ;
 <ul class = '$class'>
    <li class='$class'>
-      <a id='a_${uuuid}_ROOT' href='javascript:void(0);' onclick='toggleList(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title</a><a> [$td_address] $perl_size $perl_address</a>
+      <a id='a_${uuuid}_ROOT' href='javascript:void(0);' onclick='toggleList_${class}(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title</a><a> [$td_address] $perl_size $perl_address</a>
 EOH
 
 $setup->{RENDERER}{TABULATION} = 2 ,
@@ -219,7 +235,7 @@ else
 	$tabulation++ ;
 	
 	$node .= '   ' x $tabulation 
-		. "<a id='a_${uuuid}_$td_address' name='$td_address' href='javascript:void(0);' onclick='toggleList(\"c_${uuuid}_$td_address\")'>"
+		. "<a id='a_${uuuid}_$td_address' name='$td_address' href='javascript:void(0);' onclick='toggleList_${class}(\"c_${uuuid}_$td_address\")'>"
 		. "$glyph$element_name</a><a>$element_value [$td_address] $perl_size $perl_address</a>\n" ;
 	}
 
@@ -238,13 +254,17 @@ my $setup = shift ;
 
 unless(exists $setup->{RENDERER}{BUTTON})
 	{
-	#~ "   </li>\n</ul>\n" ;
 	"   </ul>   </li>\n</ul>\n" ;
 	}
 else
 	{
 	my $a_ids = join "\n\t\t, ", @{$setup->{RENDERER}{NODES}{A_IDS}} ;
 	my $collapsable_ids = join "\n\t\t\t\t, ", @{$setup->{RENDERER}{NODES}{COLLAPSABLE_IDS}} ;
+	
+	my $collapsed = 0 ;
+	$collapsed++ if($setup->{RENDERER}{COLLAPSED}) ;
+	
+	my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
 
 <<EOS
       </ul>
@@ -254,74 +274,116 @@ else
 <script type='text/javascript'>
 <!--
 
-var a_id_array= new Array
+var a_id_array_${class}= new Array
 		(
 		$a_ids
 		) ;
 
-function search()
+function search_${class}()
 {
 var string_to_search = prompt('DTD::DHTML Search','');
 var regexp = new RegExp(string_to_search, 'i') ;
 
 var i ;
-for (i = 0; i < a_id_array.length; i++)
+for (i = 0; i < a_id_array_${class}.length; i++)
 	{
 	if (document.getElementById) 
 		{
-		if(regexp.test(document.getElementById(a_id_array[i]).text))
+		document.getElementById(a_id_array_${class}[i]).style.color = '' ;
+		}
+	else if (document.all) 
+		{
+		document.all[a_id_array_${class}[0]].style.color = '' ;
+		}
+	else if (document.layers) 
+		{
+		document.layers[a_id_array_${class}[0]].style.color = '' ;
+		}
+	}
+
+for (i = 0 ; i < a_id_array_${class}.length; i++)
+	{
+	if (document.getElementById) 
+		{
+		if(regexp.test(document.getElementById(a_id_array_${class}[i]).text))
 			{
-			confirm('"' + document.getElementById(a_id_array[i]).text + '" node id:' + document.getElementById(a_id_array[i]).id) ;
+			show_specific_node_${class}(document.getElementById(a_id_array_${class}[i])) ;
+			document.getElementById(a_id_array_${class}[i]).style.color = '#FF0000' ;
+			break ;
 			}
 		}
 	else if (document.all) 
 		{
-		confirm(document.all[a_id_array[0]].value) ;
+		if(regexp.test(document.all[a_id_array_${class}[0]].text))
+			{
+			show_specific_node_${class}(document.all[a_id_array_${class}[0]]) ;
+			break ;
+			}
 		}
 	else if (document.layers) 
 		{
-		confirm(document.layers[a_id_array[0]].value) ;
+		if(regexp.test(document.layers[a_id_array_${class}[0]].text))
+			{
+			show_specific_node_${class}(document.layers[a_id_array_${class}[0]]) ;
+			break ;
+			}
 		}
 	}
 }
 
-var collapsable_id_array = new Array
+function show_specific_node_${class} (node)
+{
+/* Hide all first.*/
+collapsed_${class} = 0;
+expand_collapse_${class}();
+
+do
+	{
+	node = node.parentNode;
+	
+	if (node && node.tagName == 'UL')
+		node.style.display = 'block';
+		
+	} while (node && node.parentNode);
+}
+
+var collapsable_id_array_${class} = new Array
 				(
 				$collapsable_ids
 				) ;
 
-var expanded = 1 ;
+var collapsed_${class} = $collapsed ;
 
-function expand_collapse() 
+function expand_collapse_${class}() 
 {
 var style ;
-if(expanded == 1)
+if(collapsed_${class}== 1)
 	{
-	expanded = 0 ;
-	style = "none" ;
-	replace_button_text("$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}", " Expand ") ;
-	}
-else
-	{
-	expanded = 1 ;
+	collapsed_${class} = 0 ;
 	style = "block" ;
 	replace_button_text("$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}", "Collapse") ;
 	}
+else
+	{
+	collapsed_${class} = 1 ;
+	style = "none" ;
+	replace_button_text("$setup->{RENDERER}{EXPAND_COLLAPSE_BUTTON_ID}", " Expand ") ;
+	}
 
 var i;
-for (i = 0; i < collapsable_id_array.length; i++)
+for (i = 0; i < collapsable_id_array_${class}.length; i++)
 	{
 	if (document.getElementById) 
 		{
-		document.getElementById(collapsable_id_array[i]).style.display = style ;
+		document.getElementById(collapsable_id_array_${class}[i]).style.display = style ;
 		}
 	else if (document.all) 
 		{
-		document.all[collapsable_id_array[i]].style.display = style ;
+		document.all[collapsable_id_array_${class}[i]].style.display = style ;
 		}
 	else if (document.layers) 
 		{
-		document.layers[collapsable_id_array[i]].display = style ;
+		document.layers[collapsable_id_array_${class}[i]].display = style ;
 		}
 	}
 }
@@ -349,7 +411,7 @@ if (document.getElementById)
 	}
 }
 
-function toggleList(tree_id) 
+function toggleList_${class}(tree_id) 
 {
 if (document.getElementById) 
 	{
@@ -480,8 +542,7 @@ for giving me the idea and providing some code I could snatch.
 
 =head1 EXAMPLE
 
-B<dhtml_test.pl>
-
+Check B<dhtml_test.pl> for a complete example of two  structure dumps within the same HTML file.
 
 =head1 OPTIONS
 
@@ -490,23 +551,65 @@ B<dhtml_test.pl>
 CSS style is dumped to $setup->{RENDERER}{STYLE} (a ref to a scalar) if it exists. This allows you to collect
 all the CSS then output it at the top of the HTML code.
 
+  my $style ;
+  my $body = DumpTree
+  		(
+		...
+		
+  		, RENDERER => 
+  			{
+  			  NAME => 'DHTML'
+  			, STYLE => \$style
+  			}
+  		) ;
+  
 {RENDERER}{NO_STYLE} removes style section generation. This is usefull when you defined your styles by hand.
+
+  my $style ;
+  my $body = DumpTree
+  		(
+		...
+		
+  		, RENDERER => 
+  			{
+  			  NAME => 'DHTML'
+  			, NO_STYLE => 1
+  			}
+  		) ;
 
 =head2 Class
 
 The output will use class 'data_tree_dumper_dhtml' for <li> and <ul>. The class can be renamed with the help of 
 {RENDERER}{CLASS}. This allows you to dump multiple data structures and display them with a diffrent styles.
 
+  my $style ;
+  my $body = DumpTree
+  		(
+		...
+		
+  		, RENDERER => 
+  			{
+  			  NAME => 'DHTML'
+  			, CLASS => 'my_class_name'
+  			}
+  		) ;
+
 =head2 Glyphs
 
 B<Data::TreeDumper> outputs the tree lines as ASCII text by default. If {RENDERER}{NO_GLYPH} and RENDERER}{NO_STYLE}
 are defined, no lines are output and the indentation will be the default <li> style. If you would like to specify a 
-specific style for your tree dump, defined you own CSS and set the appropriate class through {RENDERER}{CLASS}.
+specific style for your tree dump, defined you own CSS and set the appropriate class through {RENDERER}{CLASS}. 
 
 =head2 Expand/Collapse
 
+Setting {RENDERER}{COLLAPSED} to a true value will display the tree collapsed. this is false by default.
+
+  $setup->{RENDERER}{COLLAPSED}++ ; 
+
 If {RENDERER}{BUTTON}{COLLAPSE_EXPAND} is set, the rendered will add a button to allow the user to collapse and expand the
 tree.
+
+  $setup->{RENDERER}{BUTTON}{COLLAPSE_EXPAND}
 
 =head2 Search
 

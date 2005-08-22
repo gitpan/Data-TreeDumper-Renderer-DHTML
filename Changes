@@ -1,5 +1,11 @@
 Revision history for Perl extension Data::TreeDumper::Renderer::DHTML.
 
+0.06  Mon Aug 22 22:00:00 2005
+	FIXED: possibility to have multiple dumps in a single page and still have the expand collapse buttons working
+	ADDED: example for multiple dump
+	ADDED: a working, though simple, search functionality
+	CHANGED: the documentation accordingly
+
 0.05  Mon Oct 11 20:00:00 2004
 	FIXED: Javascript element was not taken into acount (I have to learn to test better!)
 	ADDED: output example (dhtml_test.html)

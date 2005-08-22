@@ -1,16 +1,17 @@
 Data/TreeDumper/Renderer/DHTML
 ==============================
 
-Version 0.05
+Version 0.06
 
 Data::TreeDumper::Renderer::DHTML Rendering plug-in for Data::TreeDumper
 
 In this release:
-	FIXED: Javascript element was not taken into acount (I have to learn to test better!)
-	ADDED: output example (dhtml_test.html)
-	FIXED: Error in validaty text
+	FIXED: possibility to have multiple dumps in a single page and still have the expand collapse buttons working
+	ADDED: example for multiple dump
+	ADDED: a working, though simple, search functionality
+	CHANGED: the documentation accordingly
 
-See 'dhtml_test.html' for an output example.
+See 'dhtml_test.pl' and 'dhtml_test.html' for an example.
 
 INSTALLATION
 
@@ -29,7 +30,7 @@ Data::TreeDumper
 
 COPYRIGHT AND LICENCE
 
-  Copyright (c) 2003 Nadim Ibn Hamouda el Khemir and Staffan Maalén.
+  Copyright (c) 2003-2005 Nadim Ibn Hamouda el Khemir and Staffan Maalén.
   All rights reserved.  This program is free software; you can redis-
   tribute it and/or modify it under the same terms as Perl itself.
 
