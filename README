@@ -6,12 +6,10 @@ Version 0.06
 Data::TreeDumper::Renderer::DHTML Rendering plug-in for Data::TreeDumper
 
 In this release:
-	FIXED: possibility to have multiple dumps in a single page and still have the expand collapse buttons working
-	ADDED: example for multiple dump
-	ADDED: a working, though simple, search functionality
-	CHANGED: the documentation accordingly
 
-See 'dhtml_test.pl' and 'dhtml_test.html' for an example.
+0.07  Saturday Oct 22 20:00:00 2005
+	FIXED: RT 15191, no address displayed when node is not terminal
+	CHANGED: Refactored node rendering code
 
 INSTALLATION
 

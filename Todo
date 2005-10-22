@@ -1,13 +1,15 @@
 Todo for Data/TreeDumper/Renderer/DHTML 
 =======================================
 
-#Integrate latest staffan's modifications (the one verified with W3C validator)
+Add the possibility to expand collaps and link (explorer style)
 
 change module name to DHTML::Simple
 
 Add DHTML::Arrow module for the example with red/green arrow
 
 add module that displays +/- images located in the current directory (try with inline base64 encoded images too)
+
+#Integrate latest staffan's modifications (the one verified with W3C validator)
 
 #Add search option
 	can't do  on closed nodes!

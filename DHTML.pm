@@ -12,7 +12,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
 
@@ -161,10 +161,7 @@ my
 	, $setup
 	) = @_ ;
 	
-my $tabulation = $setup->{RENDERER}{TABULATION} ;
-	
-my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
-
+# HTMLify args
 my $glyph = '' ;
 unless ($setup->{RENDERER}{NO_GLYPH})
 	{
@@ -180,7 +177,13 @@ if($element_value ne '')
 	$element_value = " = $element_value" ;
 	}
 
+#setup
+my $tabulation = $setup->{RENDERER}{TABULATION} ;
+my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
+
 my $node = '' ;
+
+# HTML list formating
 if($level > $setup->{RENDERER}{PREVIOUS_LEVEL})
 	{
 	$node = '   ' x $tabulation . "<ul id='$setup->{RENDERER}{PREVIOUS_ADDRESS}'>\n" ;
@@ -206,23 +209,24 @@ push @{$setup->{RENDERER}{NODES}{A_IDS}}, "\"a_${uuuid}_$td_address\"";
 
 if($is_terminal)
 	{
-	$node .= '   ' x $tabulation . "<li><a id='a_${uuuid}_$td_address' name=\"$td_address\">$glyph$element_name$element_value" ;
+	my $list_format_head = '   ' x $tabulation . "<li>" ;
+	my $id               = "<a id='a_${uuuid}_$td_address' name=\"$td_address\"></a>" ;
+	my $name_value       = "<a> $glyph$element_name$element_value</a>" ;
 	
+	my $address = '' ;
 	if($setup->{DISPLAY_ADDRESS})
 		{
-		if(defined $address_link)
-			{
-			$node .= " [$td_address -> </a><a href=\"#$address_link\">$address_link</a><a>] $perl_size $perl_address</a></li>\n" ;
-			}
-		else
-			{
-			$node .= " [$td_address]</a><a /><a> $perl_size $perl_address</a></li>\n" ;
-			}
+		$address .= "<a> [$td_address</a>" ;
+		
+		$address .= "<a> -&gt; </a><a href=\"#$address_link\">$address_link</a>" if(defined $address_link) ;
+			
+		$address .= "<a> ]</a>" ;
 		}
-	else	
-		{
-		$node .= "</a><a /><a> $perl_size $perl_address</a></li>\n" ;
-		}
+		
+	my $perl_data        = "<a> $perl_size $perl_address</a>" ;
+	my $list_format_foot = "</li>" ;
+	
+	$node .= $list_format_head . $id . $name_value . $address . $perl_data . $list_format_foot . "\n" ;
 	}
 else
 	{
@@ -231,14 +235,22 @@ else
 		push @{$setup->{RENDERER}{NODES}{COLLAPSABLE_IDS}}, "\"c_${uuuid}_$td_address\"" ;
 		}
 		
-	$node .= '   ' x $tabulation . "<li>\n" ;
+	my $list_format_head = ('   ' x $tabulation) . "<li>\n" ;
 	$tabulation++ ;
 	
-	$node .= '   ' x $tabulation 
-		. "<a id='a_${uuuid}_$td_address' name='$td_address' href='javascript:void(0);' onclick='toggleList_${class}(\"c_${uuuid}_$td_address\")'>"
-		. "$glyph$element_name</a><a>$element_value [$td_address] $perl_size $perl_address</a>\n" ;
-	}
+	my $alignment         = '   ' x $tabulation ;
+	
+	my $id_and_click_head = "<a id='a_${uuuid}_$td_address' name='$td_address' href='javascript:void(0);' onclick='toggleList_${class}(\"c_${uuuid}_$td_address\")'>" ;
+	my $name_value        = "$glyph$element_name$element_value" ;
+	my $id_and_click_foot = "</a>" ;
+	
+	my $address           = $setup->{DISPLAY_ADDRESS} ? "<a>[$td_address] </a>" : '';
+	my $perl_data         = "<a> $perl_size $perl_address</a>" ;
 
+	$node .= $list_format_head . $alignment . $id_and_click_head . $name_value . $id_and_click_foot . $address . $perl_data . "\n";
+	}
+	
+# setup
 $setup->{RENDERER}{TABULATION}       = $tabulation ;
 $setup->{RENDERER}{PREVIOUS_LEVEL}   = $level ;
 $setup->{RENDERER}{PREVIOUS_ADDRESS} = "c_${uuuid}_$td_address" ;
@@ -248,6 +260,7 @@ return($node) ;
 }
 	
 #-------------------------------------------------------------------------------------------
+
 sub RenderDhtmlEnd
 {
 my $setup = shift ;
