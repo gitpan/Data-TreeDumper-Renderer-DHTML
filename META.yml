@@ -1,10 +1,13 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Data-TreeDumper-Renderer-DHTML
-version:      0.07
-version_from: DHTML.pm
-installdirs:  site
-requires:
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+--- #YAML:1.0
+name:                Data-TreeDumper-Renderer-DHTML
+version:             0.08
+abstract:            DHTML renderer for B<Data::TreeDumper>
+license:             ~
+author:              
+    - A. U. Thor <a.u.thor@a.galaxy.far.far.away>
+generated_by:        ExtUtils::MakeMaker version 6.44
+distribution_type:   module
+requires:     
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

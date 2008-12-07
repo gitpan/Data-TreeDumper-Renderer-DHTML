@@ -1,15 +1,9 @@
 Data/TreeDumper/Renderer/DHTML
 ==============================
 
-Version 0.06
-
 Data::TreeDumper::Renderer::DHTML Rendering plug-in for Data::TreeDumper
 
-In this release:
-
-0.07  Saturday Oct 22 20:00:00 2005
-	FIXED: RT 15191, no address displayed when node is not terminal
-	CHANGED: Refactored node rendering code
+See Changes for information about this release:
 
 INSTALLATION
 

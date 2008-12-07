@@ -12,7 +12,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
 
@@ -94,7 +94,7 @@ if(exists $setup->{RENDERER}{BUTTON})
 my $collapsed = '' ;
 if($setup->{RENDERER}{COLLAPSED})
 	{
-	$collapsed = "ul.$class > li > ul {display: none}" ;
+	$collapsed = "ul.$class ul {display: none}" ;
 	}
 
 my $style = <<EOS;
@@ -143,6 +143,7 @@ return($style . $button_container . $header) ;
 }
 
 #-------------------------------------------------------------------------------------------
+
 sub RenderDhtmlNode
 {
 my
@@ -186,7 +187,15 @@ my $node = '' ;
 # HTML list formating
 if($level > $setup->{RENDERER}{PREVIOUS_LEVEL})
 	{
-	$node = '   ' x $tabulation . "<ul id='$setup->{RENDERER}{PREVIOUS_ADDRESS}'>\n" ;
+	if($setup->{RENDERER}{COLLAPSED})
+		{
+		$node = '   ' x $tabulation . "<ul id='$setup->{RENDERER}{PREVIOUS_ADDRESS}' style = 'display:none'>\n" ;
+		}
+	else
+		{
+		$node = '   ' x $tabulation . "<ul id='$setup->{RENDERER}{PREVIOUS_ADDRESS}' style = 'display:block'>\n" ;
+		}
+		
 	$tabulation++ ;
 	}
 else
@@ -206,6 +215,7 @@ else
 
 # keep nodes id for search
 push @{$setup->{RENDERER}{NODES}{A_IDS}}, "\"a_${uuuid}_$td_address\"";
+push @{$setup->{RENDERER}{NODES}{COLLAPSABLE_IDS}}, "\"c_${uuuid}_$td_address\"" ;
 
 if($is_terminal)
 	{
@@ -265,9 +275,21 @@ sub RenderDhtmlEnd
 {
 my $setup = shift ;
 
+my $closing_ul_li = '' ;
+my $tabulation = $setup->{RENDERER}{TABULATION} ;
+
+for (my $i = 0 ; $i < $setup->{RENDERER}{PREVIOUS_LEVEL} ; $i++)
+	{
+	$tabulation-- ;
+	$closing_ul_li .= '   ' x $tabulation . "</ul>\n" ;
+	
+	$tabulation-- ;
+	$closing_ul_li .= '   ' x $tabulation . "</li>\n" ;
+	}
+	
 unless(exists $setup->{RENDERER}{BUTTON})
 	{
-	"   </ul>   </li>\n</ul>\n" ;
+	"$closing_ul_li   </ul>   </li>\n</ul>\n" ;
 	}
 else
 	{
@@ -280,7 +302,8 @@ else
 	my $class = $setup->{RENDERER}{CLASS} || DHTML_CLASS ;
 
 <<EOS
-      </ul>
+$closing_ul_li
+     </ul>
    </li>
 </ul>
 
@@ -429,7 +452,6 @@ function toggleList_${class}(tree_id)
 if (document.getElementById) 
 	{
 	var element = document.getElementById(tree_id);
-	
 	if (element) 
 		{
 		if (element.style.display == 'none') 
