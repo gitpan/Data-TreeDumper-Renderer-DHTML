@@ -9,6 +9,7 @@ my $style ;
 my $body = DumpTree
 		(
 		  GetData(), 'Data'
+		, DISPLAY_ADDRESS => 0
 		, DISPLAY_ROOT_ADDRESS => 1
 		#~ , DISPLAY_PERL_ADDRESS => 1
 		#~ , DISPLAY_PERL_SIZE => 1

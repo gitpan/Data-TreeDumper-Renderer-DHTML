@@ -12,7 +12,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use constant DHTML_CLASS => 'data_treedumper_dhtml' ;
 
@@ -20,12 +20,12 @@ my $uuuid = int(rand(100_000)) ;
 
 my %ascii_to_html =
 	(
-	'<' => '&lt;'
-	, '>' => '&gt;'
-	, '&' => '&amp;'
-	, "'" => '&apos;'
-	, '"' => '&quot;'
-	, ' ' => '&nbsp;'
+	'<' => '&lt;',
+	'>' => '&gt;',
+	'&' => '&amp;',
+	"'" => '&apos;',
+	'"' => '&quot;',
+	' ' => '&nbsp;',
 	) ;
 
 #-------------------------------------------------------------------------------------------
@@ -41,18 +41,18 @@ $uuuid++ ;
 return
 	(
 		{
-		  BEGIN => \&RenderDhtmlBegin
-		, NODE  => \&RenderDhtmlNode
-		, END   => \&RenderDhtmlEnd
+		BEGIN => \&RenderDhtmlBegin,
+		NODE  => \&RenderDhtmlNode,
+		END   => \&RenderDhtmlEnd,
 		
 		# data needed by the renderer
-		, EXPAND_COLLAPSE_BUTTON_ID => $expand_collapse_button_id
-		, SEARCH_BUTTON_ID          => $search_button_id
+		EXPAND_COLLAPSE_BUTTON_ID => $expand_collapse_button_id,
+		SEARCH_BUTTON_ID          => $search_button_id,
 		
-		, PREVIOUS_LEVEL   => -1
-		, PREVIOUS_ADDRESS => "c_${uuuid}_ROOT"
-		, TABULATION       => 0
-		, @_
+		PREVIOUS_LEVEL   => -1,
+		PREVIOUS_ADDRESS => "c_${uuuid}_ROOT",
+		TABULATION       => 0,
+		@_,
 		}
 	) ;
 }
@@ -126,13 +126,15 @@ $style = '' if(exists $setup->{RENDERER}{NO_STYLE}) ;
 
 $perl_size = "&lt;$perl_size&gt;" if $perl_size ne '' ;
 
+my $address = $setup->{DISPLAY_ADDRESS} ? "<a>[$td_address] </a>" : '';
+
 my $header = <<EOH ;
 <ul class = '$class'>
    <li class='$class'>
-      <a id='a_${uuuid}_ROOT' href='javascript:void(0);' onclick='toggleList_${class}(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title</a><a> [$td_address] $perl_size $perl_address</a>
+      <a id='a_${uuuid}_ROOT' href='javascript:void(0);' onclick='toggleList_${class}(\"$setup->{RENDERER}{PREVIOUS_ADDRESS}\")'>$title</a><a> $address $perl_size $perl_address</a>
 EOH
 
-$setup->{RENDERER}{TABULATION} = 2 ,
+$setup->{RENDERER}{TABULATION} = 2 ;
 push @{$setup->{RENDERER}{NODES}{A_IDS}}, "\"a_${uuuid}_ROOT\"";
 push @{$setup->{RENDERER}{NODES}{COLLAPSABLE_IDS}}, "\"c_${uuuid}_ROOT\"" ;
 
@@ -148,18 +150,18 @@ sub RenderDhtmlNode
 {
 my
 	(
-	  $element
-	, $level
-	, $is_terminal
-	, $previous_level_separator
-	, $separator
-	, $element_name
-	, $element_value
-	, $td_address
-	, $address_link
-	, $perl_size
-	, $perl_address
-	, $setup
+	$element,
+	$level,
+	$is_terminal,
+	$previous_level_separator,
+	$separator,
+	$element_name,
+	$element_value,
+	$td_address,
+	$address_link,
+	$perl_size,
+	$perl_address,
+	$setup,
 	) = @_ ;
 	
 # HTMLify args
@@ -214,8 +216,7 @@ else
 	}
 
 # keep nodes id for search
-push @{$setup->{RENDERER}{NODES}{A_IDS}}, "\"a_${uuuid}_$td_address\"";
-push @{$setup->{RENDERER}{NODES}{COLLAPSABLE_IDS}}, "\"c_${uuuid}_$td_address\"" ;
+push @{$setup->{RENDERER}{NODES}{A_IDS}}, "\"a_${uuuid}_$td_address\"" ;
 
 if($is_terminal)
 	{
@@ -522,20 +523,20 @@ Data::TreeDumper::Renderer::DHTML - DHTML renderer for B<Data::TreeDumper>
   my $style ;
   my $body = DumpTree
   		(
-  		  GetData(), 'Data'
-  		, DISPLAY_ROOT_ADDRESS => 1
-  		, DISPLAY_PERL_ADDRESS => 1
-  		, DISPLAY_PERL_SIZE => 1
-  		, RENDERER => 
+		GetData(), 'Data',
+  		DISPLAY_ROOT_ADDRESS => 1,
+  		DISPLAY_PERL_ADDRESS => 1,
+  		DISPLAY_PERL_SIZE => 1,
+  		RENDERER => 
   			{
-  			  NAME => 'DHTML'
-  			, STYLE => \$style
-  			, BUTTON =>
+			NAME => 'DHTML',
+  			STYLE => \$style,
+  			BUTTON =>
   				{
-  				  COLLAPSE_EXPAND => 1
-  				, SEARCH => 1
-  				}
-  			}
+				COLLAPSE_EXPAND => 1,
+  				SEARCH => 1,
+  				},
+  			},
   		) ;
   		
   		
@@ -591,11 +592,11 @@ all the CSS then output it at the top of the HTML code.
   		(
 		...
 		
-  		, RENDERER => 
+  		RENDERER => 
   			{
-  			  NAME => 'DHTML'
-  			, STYLE => \$style
-  			}
+  			NAME => 'DHTML',
+  			STYLE => \$style,
+  			},
   		) ;
   
 {RENDERER}{NO_STYLE} removes style section generation. This is usefull when you defined your styles by hand.
@@ -605,11 +606,11 @@ all the CSS then output it at the top of the HTML code.
   		(
 		...
 		
-  		, RENDERER => 
+  		RENDERER => 
   			{
-  			  NAME => 'DHTML'
-  			, NO_STYLE => 1
-  			}
+			NAME => 'DHTML',
+  			NO_STYLE => 1,
+  			},
   		) ;
 
 =head2 Class
@@ -622,11 +623,11 @@ The output will use class 'data_tree_dumper_dhtml' for <li> and <ul>. The class 
   		(
 		...
 		
-  		, RENDERER => 
+  		RENDERER => 
   			{
-  			  NAME => 'DHTML'
-  			, CLASS => 'my_class_name'
-  			}
+			NAME => 'DHTML',
+  			CLASS => 'my_class_name',
+  			},
   		) ;
 
 =head2 Glyphs
